@@ -2,7 +2,6 @@ package pro.codeschool.userservice.api
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import pro.codeschool.userservice.api.model.User
@@ -12,7 +11,8 @@ import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
 @RestController
-@RequestMapping('/v1/users')
+@RequestMapping('${api.basePath.users}')
+@CrossOrigin
 class UserApi {
 
     @Autowired
@@ -26,7 +26,18 @@ class UserApi {
 
     @Validated
     @GetMapping('/{id}')
-    ResponseEntity<User> read(@PathVariable('id') @NotNull int id) {
-        return ResponseEntity.ok(new User(id: id))
+    User read(@PathVariable('id') @NotNull long id) {
+        return userService.getUser(id)
+    }
+
+    @Validated
+    @GetMapping
+    List<User> readAll() {
+        return userService.getAll()
+    }
+
+    @GetMapping('/validate/{id}/{token}')
+    void validate(@PathVariable('id') @NotNull long id, @PathVariable('token') @NotNull String token) {
+        userService.validate(id, token)
     }
 }

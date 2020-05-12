@@ -4,6 +4,19 @@ server:
     context-path: "/api"
 api:
   name: 'User Api'
+  basePath:
+    users: '/v1/users'  # Change this to have a custom api URL
+email:
+  footer: 'Awesome Company, 1 Awesome Road, Superb City SC 94102'
+  product: 'Awesome Product'
+  host: 'smtp.mailtrap.io'
+  port: 2525
+  ssl: = no
+  tls: true
+  from: 'no-reply@awesome.com'
+  user: '55adc3959a6703'
+  password: '4af05c80da27fc'
+  subject: 'Validate your account'
 spring:
   jpa:
     hibernate:
@@ -13,3 +26,5 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: password
+  jackson:
+    default-property-inclusion: non_null # Change to allow sending null values

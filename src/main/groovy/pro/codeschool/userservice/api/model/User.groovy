@@ -8,7 +8,7 @@ import javax.validation.constraints.Size
 
 class User {
 
-    String id
+    long id
 
     @NotNull(message = '{invalid.first.name}')
     String firstName

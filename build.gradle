@@ -14,10 +14,13 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    //implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.hibernate.validator:hibernate-validator:6.1.4.Final'
+    implementation 'org.codehaus.groovy:groovy-templates'
+    implementation 'com.sun.mail:javax.mail:1.6.0'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
 
     implementation 'com.h2database:h2:1.4.200'
     implementation 'org.codehaus.groovy:groovy'

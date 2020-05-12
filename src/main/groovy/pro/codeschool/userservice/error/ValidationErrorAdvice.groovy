@@ -17,24 +17,29 @@ class ValidationErrorAdvice {
     @Autowired
     ApiError apiError
 
+    /**
+     * Exception thrown when JSR-303 validations fails.
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(MethodArgumentNotValidException)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ApiError handleError(MethodArgumentNotValidException ex) {
         apiError.with {
             code = HttpStatus.BAD_REQUEST.value()
             type ='ValidationException'
-            errors = ex?.bindingResult?.allErrors?.collect {it.defaultMessage}
+            errors = ex?.bindingResult?.allErrors?.collect { "${it.field} - ${it.defaultMessage}".toString() }
             timestamp = LocalDateTime.now()
         }
         return apiError
     }
 
-    @ExceptionHandler(UserNotFoundException)
+    @ExceptionHandler(UserServiceException)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ApiError notFound(Exception ex) {
         apiError.with {
             code = HttpStatus.NOT_FOUND.value()
-            type ='UserNotFoundException'
+            type ='UserServiceException'
             errors = [ex.message ]
             timestamp = LocalDateTime.now()
         }
@@ -42,7 +47,7 @@ class ValidationErrorAdvice {
     }
 
     @ExceptionHandler(DataIntegrityViolationException)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     ApiError dataAccess(DataIntegrityViolationException ex) {
             apiError.with {
                 code = HttpStatus.BAD_REQUEST.value()
@@ -54,7 +59,7 @@ class ValidationErrorAdvice {
     }
 
     @ExceptionHandler(RuntimeException)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ApiError handleRuntime(RuntimeException ex) {
         apiError.with {
             code = HttpStatus.INTERNAL_SERVER_ERROR.value()
@@ -69,7 +74,7 @@ class ValidationErrorAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ApiError all(Exception ex) {
         apiError.with {
-            code = HttpStatus.NOT_FOUND.value()
+            code = HttpStatus.INTERNAL_SERVER_ERROR.value()
             type ='InternalError'
             errors = ['An exception has occurred' ]
             timestamp = LocalDateTime.now()

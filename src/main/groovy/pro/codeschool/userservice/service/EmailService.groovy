@@ -1,6 +1,8 @@
 package pro.codeschool.userservice.service
 
+import pro.codeschool.userservice.api.model.User
+
 interface EmailService {
 
-    void sendEmail()
+    void sendEmail(User user)
 }
