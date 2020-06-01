@@ -7,12 +7,14 @@ import pro.codeschool.userservice.entity.UserEntity
 import pro.codeschool.userservice.entity.UserTokenEntity
 import pro.codeschool.userservice.error.TokenNotFoundException
 import pro.codeschool.userservice.error.UserNotFoundException
+import pro.codeschool.userservice.error.UserServiceException
 import pro.codeschool.userservice.event.UserEventPublisher
+import pro.codeschool.userservice.repository.TokenRepository
 import pro.codeschool.userservice.repository.UserRepository
 import pro.codeschool.userservice.service.UserService
+import pro.codeschool.userservice.service.helper.UserServiceHelper
 
 import javax.transaction.Transactional
-import java.time.LocalDateTime
 
 @Service
 class UserServiceImpl implements UserService {
@@ -23,9 +25,12 @@ class UserServiceImpl implements UserService {
     @Autowired
     UserEventPublisher eventPublisher
 
+    @Autowired
+    TokenRepository tokenRepository
+
     @Transactional
     User createUser(User user) {
-        String token = UUID.randomUUID().toString()
+        UserTokenEntity token = UserServiceHelper.generateToken()
         UserEntity userEntity = userRepository.save(
                 new UserEntity(
                         lastName: user.lastName,
@@ -33,61 +38,62 @@ class UserServiceImpl implements UserService {
                         emailAddress: user.email,
                         password: user.password,
                         createdBy: 'API_USER',
-                        userTokens: [
-                                new UserTokenEntity(
-                                        token: token,
-                                        isExpired: false,
-                                        dateTime: LocalDateTime.now().toString())
-                        ].toSet()),
+                        userTokens: [ token ].toSet()),
         )
         user.id = userEntity.id
-        user.token = token
+        user.currentToken = token.token
         eventPublisher.publishUserRegisteredEvent(user, "${user.firstName} created")
         return user
     }
 
+
     @Override
     User getUser(long id) {
         UserEntity userEntity = getUserEntity(id)
-        return transform(userEntity)
+        return UserServiceHelper.transform(userEntity)
     }
 
-    private UserEntity getUserEntity(long id) {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow({ ->
-                    new UserNotFoundException("User ${id} not found")
-                })
-        userEntity
-    }
 
     @Override
     List<User> getAll() {
         return userRepository.findAll()?.collect {
-            return transform(it)
+            return UserServiceHelper.transform(it)
         }
     }
 
     User validate(long id, String token) {
         UserEntity userEntity = getUserEntity(id)
-        UserTokenEntity userToken = userEntity.userTokens?.find {it.token == token && !it.isExpired}
+        UserTokenEntity userToken = userEntity.userTokens?.find { it.token == token && !it.isExpired }
         if(!userToken) {
             throw new TokenNotFoundException("Token not found or already expired")
         }
+
         //Invalidate the token
         userToken.isExpired = true
         //Enable the user
         userEntity.isEnabled = true
         userEntity.isValidated = true
         userRepository.save(userEntity)
-        return transform(userEntity)
+        return UserServiceHelper.transform(userEntity)
     }
 
-    private static User transform(UserEntity userEntity) {
-        return new User(id: userEntity.id,
-                firstName: userEntity.firstName,
-                lastName: userEntity.lastName,
-                email: userEntity.emailAddress,
-                token: userEntity.userTokens?.find()
-        )
+    @Override
+    void resendToken(long userId) {
+        UserEntity userEntity = getUserEntity(userId)
+        if(userEntity.isValidated && userEntity.isEnabled) {
+            throw new UserServiceException("User already enabled and validated")
+        }
+        userEntity.userTokens.add(UserServiceHelper.generateToken())
+        userRepository.save(userEntity)
+        User user = UserServiceHelper.transform(userEntity)
+        eventPublisher.publishUserRegisteredEvent(user, "${user.firstName} token resent")
+    }
+
+     private UserEntity getUserEntity(long id) {
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow({ ->
+                    new UserNotFoundException("${id} not found")
+                })
+        return userEntity
     }
 }

@@ -1,7 +1,6 @@
 package pro.codeschool.userservice.entity
 
 import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 
 import javax.persistence.*
 
@@ -19,24 +18,25 @@ class UserTokenEntity implements Serializable {
     @Column(name="token_value")
     String token
 
-    @Column(name="token_timestamp")
-    String dateTime
+    @Column(name="token_expiry", nullable = false)
+    long tokenExpiry
 
     @Column(name="is_expired")
     boolean isExpired = false
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_date")
-    private Date createDate;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modify_date")
-    private Date modifyDate;
-
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
     UserEntity user
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "_audit_create_date")
+    private Date createDate;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "_audit_modify_date")
+    private Date modifyDate;
+
 
 }

@@ -22,6 +22,9 @@ dependencies {
     implementation 'com.sun.mail:javax.mail:1.6.0'
     implementation 'javax.mail:javax.mail-api:1.6.2'
 
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+
+
     implementation 'com.h2database:h2:1.4.200'
     implementation 'org.codehaus.groovy:groovy'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

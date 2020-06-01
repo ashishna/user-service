@@ -1,5 +1,6 @@
 package pro.codeschool.userservice.entity
 
+// TODO Try doing it with Spring data
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 
@@ -37,14 +38,14 @@ class UserEntity implements Serializable {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "audit_created_date")
+    @Column(name = "_audit_created_date")
     Date createdDate
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "audit_updatedDate")
+    @Column(name = "_audit_updatedDate")
     Date updatedDate
 
-    @Column(name = "audit_created_by")
+    @Column(name = "_audit_created_by")
     String createdBy
 }

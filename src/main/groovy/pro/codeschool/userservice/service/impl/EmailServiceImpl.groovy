@@ -2,6 +2,8 @@ package pro.codeschool.userservice.service.impl
 
 import groovy.text.Template
 import groovy.text.TemplateEngine
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -15,10 +17,15 @@ import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
-@Service()
+@Service
 class EmailServiceImpl implements EmailService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EmailServiceImpl)
+
+    @Value('${server.port}')
     String port
+    @Value('${server.servlet.context-path}')
+    String context
     String host
     @Value('${api.basePath.users}')
     String basePath
@@ -45,15 +52,21 @@ class EmailServiceImpl implements EmailService {
 
     @Override
     void sendEmail(User user) {
+        LOG.info("About to send user [${user}] an activation email")
         String email = emailTemplate.make([
             'fullName': [user.firstName, user.lastName]?.findAll()?.join(' '),
-            'registrationLink': "http://localhost:8080/api/${basePath}/validate/${user.id}/${user.token}",
+            'registrationLink': "http://localhost:${port}${context}/${basePath}/validate/${user.id}/${user.currentToken}",
             'footer': footer?.trim(),
             'product': product?.trim()
         ]).toString()
         send(email, user.email)
     }
 
+    /**
+     * Method use Java mail api to send email.
+     * @param emailContent
+     * @param emailTo
+     */
      void send(String emailContent, String emailTo) {
 
          MimeMessage mimeMessage = new MimeMessage(session)
@@ -69,5 +82,6 @@ class EmailServiceImpl implements EmailService {
          mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailTo?.trim(), false))
 
          Transport.send(mimeMessage)
+         LOG.debug("Email sent to user [${emailTo}]")
     }
 }

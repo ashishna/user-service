@@ -8,4 +8,5 @@ interface UserService {
     User getUser(long id)
     List<User> getAll()
     User validate(long id, String token)
+    void resendToken(long id)
 }
