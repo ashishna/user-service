@@ -2,7 +2,9 @@ package pro.codeschool.userservice.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import pro.codeschool.userservice.api.model.Password
 import pro.codeschool.userservice.api.model.User
+import pro.codeschool.userservice.entity.PasswordReset
 import pro.codeschool.userservice.entity.UserEntity
 import pro.codeschool.userservice.entity.UserTokenEntity
 import pro.codeschool.userservice.error.TokenNotFoundException
@@ -15,6 +17,8 @@ import pro.codeschool.userservice.service.UserService
 import pro.codeschool.userservice.service.helper.UserServiceHelper
 
 import javax.transaction.Transactional
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Service
 class UserServiceImpl implements UserService {
@@ -48,7 +52,7 @@ class UserServiceImpl implements UserService {
 
 
     @Override
-    User getUser(long id) {
+    User getUser(Long id) {
         UserEntity userEntity = getUserEntity(id)
         return UserServiceHelper.transform(userEntity)
     }
@@ -61,7 +65,7 @@ class UserServiceImpl implements UserService {
         }
     }
 
-    User validate(long id, String token) {
+    User validate(Long id, String token) {
         UserEntity userEntity = getUserEntity(id)
         UserTokenEntity userToken = userEntity.userTokens?.find { it.token == token && !it.isExpired }
         if(!userToken) {
@@ -78,7 +82,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    void resendToken(long userId) {
+    void resendToken(Long userId) {
         UserEntity userEntity = getUserEntity(userId)
         if(userEntity.isValidated && userEntity.isEnabled) {
             throw new UserServiceException("User already enabled and validated")
@@ -89,10 +93,52 @@ class UserServiceImpl implements UserService {
         eventPublisher.publishUserRegisteredEvent(user, "${user.firstName} token resent")
     }
 
-     private UserEntity getUserEntity(long id) {
+    @Override
+    void generateResetPasswordToken(Password password) {
+        UserEntity userEntity = userRepository.findByEmail(password.uId)
+        if(!userEntity) {
+            throw new UserNotFoundException(password.uId)
+        }
+
+        //Invalidate existing password reset tokens
+        userEntity?.passwordResets?.findAll {!it.isExpired}?.each {
+            it.isExpired = true
+        }
+        //Add new token
+        PasswordReset passwordReset = new PasswordReset(
+                user: userEntity,
+                token: UUID.randomUUID().toString(),
+                dateTime: LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond(),
+                isExpired: false,
+                isUsed: false
+        )
+        userEntity?.passwordResets << passwordReset
+        //Update the user
+        userRepository.save(userEntity)
+        User user = UserServiceHelper.transform(userEntity)
+        eventPublisher.publishUserRegisteredEvent(user, "${user.firstName} password rest")
+    }
+
+    void resetPassword(User user, Long userId) {
+        UserEntity userEntity = getUserEntity(userId)
+
+        //find the token
+        PasswordReset passwordReset = userEntity?.passwordResets?.find {it.token == user.currentToken && !it.isExpired && !it.isUsed}
+        if(!passwordReset) {
+            throw new TokenNotFoundException("Token ${user.currentToken} not found or expired")
+        }
+        passwordReset.isExpired = true
+        passwordReset.isUsed = true
+        userEntity.password = user.password
+
+        //Update the user
+        userRepository.save(userEntity)
+    }
+
+    private UserEntity getUserEntity(Long id) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow({ ->
-                    new UserNotFoundException("${id} not found")
+                    new UserNotFoundException("${id}")
                 })
         return userEntity
     }

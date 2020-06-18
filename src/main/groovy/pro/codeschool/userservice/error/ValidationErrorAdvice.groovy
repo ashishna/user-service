@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import pro.codeschool.userservice.api.model.ApiError
+import pro.codeschool.userservice.utils.DateUtils
 
 import java.time.LocalDateTime
 
@@ -29,7 +30,7 @@ class ValidationErrorAdvice {
             code = HttpStatus.BAD_REQUEST.value()
             type ='ValidationException'
             errors = ex?.bindingResult?.allErrors?.collect { "${it.field} - ${it.defaultMessage}".toString() }
-            timestamp = LocalDateTime.now()
+            timestamp = DateUtils.now()
         }
         return apiError
     }
@@ -41,7 +42,7 @@ class ValidationErrorAdvice {
             code = HttpStatus.NOT_FOUND.value()
             type ='UserServiceException'
             errors = [ex.message ]
-            timestamp = LocalDateTime.now()
+            timestamp = DateUtils.now()
         }
         return apiError
     }
@@ -65,7 +66,7 @@ class ValidationErrorAdvice {
             code = HttpStatus.INTERNAL_SERVER_ERROR.value()
             type ='RuntimeError'
             errors = ['An unexpected error has occurred ' + ex ]
-            timestamp = LocalDateTime.now()
+            timestamp = DateUtils.now()
         }
         return apiError
     }
@@ -77,7 +78,7 @@ class ValidationErrorAdvice {
             code = HttpStatus.INTERNAL_SERVER_ERROR.value()
             type ='InternalError'
             errors = ['An exception has occurred' ]
-            timestamp = LocalDateTime.now()
+            timestamp = DateUtils.now()
         }
         return apiError
     }

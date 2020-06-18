@@ -11,5 +11,5 @@ class ApiError {
     String system
 
     List<String> errors
-    String timestamp
+    Long timestamp
 }

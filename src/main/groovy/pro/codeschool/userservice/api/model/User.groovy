@@ -7,9 +7,10 @@ import javax.validation.constraints.Email
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
-@ToString(includeFields = true, excludes = 'password', includePackage = false)
+@ToString(includeFields = true, excludes = 'password, id', includePackage = false)
 class User {
 
+    @JsonIgnore
     long id
 
     @NotNull(message = '{invalid.first.name}')
@@ -22,9 +23,7 @@ class User {
     String email
 
     @NotNull
-    @Size(min = 8, max = 15, message = '{invalid.password.length}')
     String password
 
-    @JsonIgnore
     String currentToken
 }

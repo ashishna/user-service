@@ -1,11 +1,12 @@
 server:
   port: 8080
   servlet:
-    context-path: "/api"
+    context-path: "/"
 api:
   name: 'User Api'
+  pwd: ENC(uTSqb9grs1+vUv3iN8lItC0kl65lMG+8)
   basePath:
-    users: '/v1/users'  # Change this to have a custom api URL
+    users: '/api/v1/users'  # Change this to have a custom api URL
 email:
   footer: 'Awesome Company, 1 Awesome Road, Superb City SC 94102'
   product: 'Awesome Product'
@@ -16,7 +17,7 @@ email:
   from: 'no-reply@awesome.com'
   user: '55adc3959a6703'
   password: '4af05c80da27fc'
-  subject: 'Validate your account'
+  subject: 'Activate your account'
 spring:
   jpa:
     hibernate:

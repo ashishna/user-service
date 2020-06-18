@@ -10,7 +10,10 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableScheduling
 class UserServiceApplication {
 
+
     static void main(String[] args) {
+        Properties props = System.getProperties();
+        props.setProperty("jasypt.encryptor.password", "password");
         SpringApplication.run(UserServiceApplication, args)
     }
 

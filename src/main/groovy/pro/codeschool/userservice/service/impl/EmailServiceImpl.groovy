@@ -55,7 +55,7 @@ class EmailServiceImpl implements EmailService {
         LOG.info("About to send user [${user}] an activation email")
         String email = emailTemplate.make([
             'fullName': [user.firstName, user.lastName]?.findAll()?.join(' '),
-            'registrationLink': "http://localhost:${port}${context}/${basePath}/validate/${user.id}/${user.currentToken}",
+            'registrationLink': "http://localhost:${port}" + [basePath,'validate', user.id, user.currentToken].join('/'),
             'footer': footer?.trim(),
             'product': product?.trim()
         ]).toString()

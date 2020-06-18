@@ -43,7 +43,7 @@ class AppConfig {
         props.put("mail.smtp.auth", "true")
         props.put("mail.smtp.port", mailPort)
 
-        Session session = Session.getDefaultInstance(props, new Authenticator() {
+        return Session.getDefaultInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(userName, password)
