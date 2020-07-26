@@ -1,14 +1,15 @@
 package pro.codeschool.userservice.entity
 
 // TODO Try doing it with Spring data
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
+
 import org.hibernate.validator.internal.util.stereotypes.Lazy
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 import javax.persistence.*
 
 @Entity(name="USERS")
-class UserEntity implements Serializable {
+@EntityListeners(AuditingEntityListener)
+class UserEntity extends Audit implements Serializable {
 
     @Id
     @GeneratedValue
@@ -42,16 +43,4 @@ class UserEntity implements Serializable {
     @JoinColumn(name = "user_id")
     Set<PasswordReset> passwordResets
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "_audit_created_date")
-    Date createdDate
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "_audit_updatedDate")
-    Date updatedDate
-
-    @Column(name = "_audit_created_by")
-    String createdBy
 }

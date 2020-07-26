@@ -1,11 +1,12 @@
 package pro.codeschool.userservice.entity
 
-import org.hibernate.annotations.CreationTimestamp
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 import javax.persistence.*
 
 @Entity(name="USER_TOKENS")
-class UserTokenEntity implements Serializable {
+@EntityListeners(AuditingEntityListener)
+class UserTokenEntity extends Audit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,16 +28,5 @@ class UserTokenEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
     UserEntity user
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "_audit_create_date")
-    private Date createDate;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "_audit_modify_date")
-    private Date modifyDate;
-
 
 }

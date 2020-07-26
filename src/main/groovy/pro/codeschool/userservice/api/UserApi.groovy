@@ -5,12 +5,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import pro.codeschool.userservice.api.model.ApiResult
 import pro.codeschool.userservice.api.model.Password
 import pro.codeschool.userservice.api.model.User
-import pro.codeschool.userservice.entity.UserEntity
 import pro.codeschool.userservice.service.UserService
 import pro.codeschool.userservice.utils.DateUtils
 
@@ -29,20 +30,22 @@ class UserApi {
 
     @Validated
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    User create(@Valid @RequestBody User user) {
-        return userService.createUser(user)
+    ResponseEntity<User> create(@Valid @RequestBody User user) {
+        User createdUser = userService.createUser(user)
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path('/{id}').buildAndExpand(createdUser.id).toUri()
+        return ResponseEntity.created(location).body(createdUser)
     }
 
     @Validated
     @GetMapping('/{id}')
-    User read(@PathVariable('id') @NotNull Long id) {
-        return userService.getUser(id)
+    ResponseEntity<User> read(@PathVariable('id') @NotNull Long id) {
+        return ResponseEntity.ok(userService.getUser(id))
     }
 
     @Validated
     @GetMapping
-    List<User> readAll() {
-        return userService.getAll()
+    ResponseEntity<List<User>> readAll() {
+        return ResponseEntity.ok(userService.getAll())
     }
 
     @GetMapping('/resend-token/{id}')

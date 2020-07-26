@@ -26,12 +26,12 @@ class SwaggerConfig {
                 .paths(PathSelectors.regex('/api.*'))
                 .build()
                 .ignoredParameterTypes(MetaClass)
-                .apiInfo(apiInfo())
+                .apiInfo(apiInfo(apiTitle))
     }
     //http://localhost:8080/swagger-ui.html
-    private ApiInfo apiInfo() {
+    private static ApiInfo apiInfo(String title) {
         return new ApiInfo(
-                apiTitle,
+                title,
                 'User registration API',
                 "1.0",
                 "Terms of service",

@@ -35,6 +35,8 @@ class UserServiceImpl implements UserService {
     @Transactional
     User createUser(User user) {
         UserTokenEntity token = UserServiceHelper.generateToken()
+        token.createdBy = 'API_USER'
+        token.modifiedBy = 'API_USER'
         UserEntity userEntity = userRepository.save(
                 new UserEntity(
                         lastName: user.lastName,

@@ -29,3 +29,8 @@ spring:
     password: password
   jackson:
     default-property-inclusion: non_null # Change to allow sending null values
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: "/v1/docs"

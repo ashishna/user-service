@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import pro.codeschool.userservice.api.model.ApiError
 
 import javax.mail.Authenticator
@@ -12,6 +13,7 @@ import javax.mail.PasswordAuthentication
 import javax.mail.Session
 
 @Configuration
+@EnableJpaAuditing
 class AppConfig {
 
     @Value('${email.host}')
@@ -23,7 +25,7 @@ class AppConfig {
     @Value('${email.password}')
     String password
 
-    @Bean()
+    @Bean
     @Scope("prototype")
     ApiError apiError() {
         return new ApiError()
